@@ -400,16 +400,6 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Ensure smooth scrolling behavior outside component */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Prevent pull-to-refresh on mobile */
-body {
-  overscroll-behavior-y: contain;
-}
-
 /* Lock to portrait orientation on mobile - content designed for portrait */
 @media screen and (max-width: 767px) and (orientation: landscape) {
   .book-reader::before {

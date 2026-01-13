@@ -1,5 +1,5 @@
 {
-  "name": "react-book-reader",
+  "name": "react-book-experience",
   "version": "0.1.0",
   "description": "A beautiful, mobile-first React book reading component with word-precise pagination, swipe navigation, and reading position persistence",
   "type": "module",
@@ -52,7 +52,7 @@
   "bugs": {
     "url": "https://github.com/umuterturk/react-book-reader/issues"
   },
-  "homepage": "https://github.com/umuterturk/react-book-reader#readme",
+  "homepage": "https://umuterturk.github.io/react-book-reader/",
   "peerDependencies": {
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0"

@@ -2,7 +2,7 @@
 
 A beautiful, mobile-first React component for displaying long-form text with a book-like reading experience.
 
-![React Book Reader Demo](https://via.placeholder.com/800x400?text=React+Book+Reader+Demo)
+Demo: https://umuterturk.github.io/react-book-reader/
 
 ## Features
 
@@ -19,14 +19,14 @@ A beautiful, mobile-first React component for displaying long-form text with a b
 ## Installation
 
 ```bash
-npm install react-book-reader
+npm install react-book-experience
 ```
 
 ## Usage
 
 ```tsx
-import { BookReader } from 'react-book-reader';
-import 'react-book-reader/styles.css';
+import { BookReader } from 'react-book-experience';
+import 'react-book-experience/styles.css';
 
 function App() {
   const bookText = `Your long book text goes here...`;
@@ -151,12 +151,22 @@ Dark mode is automatic based on system preferences. Override with:
 }
 ```
 
+### Recommended Global Styles
+
+For the best mobile experience, add these styles to your app to prevent pull-to-refresh interference:
+
+```css
+body {
+  overscroll-behavior-y: contain;
+}
+```
+
 ## TypeScript
 
 Full TypeScript support with exported types:
 
 ```tsx
-import { BookReader, BookReaderProps, ContentRegion } from 'react-book-reader';
+import { BookReader, BookReaderProps, ContentRegion } from 'react-book-experience';
 ```
 
 ## Browser Support
@@ -167,4 +177,4 @@ import { BookReader, BookReaderProps, ContentRegion } from 'react-book-reader';
 
 ## License
 
-MIT © [Umut Erturk](https://github.com/umuterturk)
+MIT © [Umut Erturk](https://github.com/umuterturk/react-book-reader)
