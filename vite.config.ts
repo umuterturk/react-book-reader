@@ -1,0 +1,49 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => {
+  // Development mode - run the demo app
+  if (mode === 'development') {
+    return {
+      plugins: [react()],
+      server: {
+        host: true,
+        port: 3000,
+      },
+    };
+  }
+
+  // Production mode - build the library
+  return {
+    plugins: [
+      react(),
+      dts({
+        include: ['lib'],
+        outDir: 'dist',
+        rollupTypes: true,
+      }),
+    ],
+    build: {
+      lib: {
+        entry: resolve(__dirname, 'lib/index.ts'),
+        name: 'ReactBookReader',
+        formats: ['es', 'cjs'],
+        fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      },
+      rollupOptions: {
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
+        output: {
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+          },
+        },
+      },
+      cssCodeSplit: false,
+      sourcemap: true,
+    },
+  };
+});

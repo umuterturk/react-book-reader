@@ -1,0 +1,434 @@
+/* React Book Reader - A mobile-first book reading experience */
+
+.book-reader {
+  --page-bg: #fdf8f0;
+  --page-texture: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.01) 0%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.02) 100%
+  );
+  --text-color: #2d2926;
+  --page-shadow: 0 2px 20px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1);
+  --footer-bg: rgba(45, 41, 38, 0.04);
+  --footer-text: #8a847d;
+  --nav-hint-color: rgba(45, 41, 38, 0.15);
+  --transition-speed: 200ms;
+
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #e8e4df 0%, #d4cfc8 100%);
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Main page container */
+.book-reader__page-stack {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.book-reader__page,
+.book-reader__page-follower {
+  margin: 12px;
+  /* Padding is set via inline style (regionStyle) */
+  background: var(--page-bg);
+  background-image: var(--page-texture);
+  border-radius: 4px;
+  box-shadow: var(--page-shadow);
+  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  
+  /* Use flexbox so content area can fill available space */
+  display: flex;
+  flex-direction: column;
+ 
+  /* Typography - Elegant serif for reading */
+  font-family: 'Crimson Pro', 'Crimson Text', 'Georgia', 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: var(--text-color);
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
+.book-reader__page {
+  z-index: 2;
+  transition: transform 220ms ease;
+  will-change: transform;
+}
+
+.book-reader__page-follower {
+  z-index: 1;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  transition: transform 220ms ease;
+  will-change: transform;
+}
+
+/* Content wrapper - FIXED height, fills available space */
+.book-reader__content {
+  white-space: pre-wrap;
+  /* Fill all available space in the flex container */
+  flex: 1 1 0;
+  min-height: 0;
+  /* Clip any overflow - measurement ensures text fits */
+  overflow: hidden;
+}
+
+/* Loading state */
+.book-reader__loading {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--footer-text);
+  font-style: italic;
+}
+
+/* Tap zones for navigation */
+.book-reader__tap-zone {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  width: 25%;
+  z-index: 10;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.book-reader__tap-zone--left {
+  left: 12px;
+}
+
+.book-reader__tap-zone--right {
+  right: 12px;
+}
+
+.book-reader__tap-zone--disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.book-reader__tap-zone:active:not(.book-reader__tap-zone--disabled) {
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.02) 0%,
+    transparent 70%
+  );
+}
+
+/* Desktop navigation buttons - hidden on mobile */
+.book-reader__nav-btn {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: var(--page-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 20;
+  padding: 12px;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-reader__nav-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.book-reader__nav-btn:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.book-reader__nav-btn--left {
+  left: 24px;
+}
+
+.book-reader__nav-btn--right {
+  right: 24px;
+}
+
+.book-reader__nav-btn--disabled,
+.book-reader__nav-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.book-reader__nav-btn svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Running header - book title at top of each page */
+.book-reader__header {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Crimson Pro', 'Crimson Text', Georgia, serif;
+  font-size: 11px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-color);
+  opacity: 0.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* Page number - sits at the bottom of the page like a real book */
+.book-reader__page-number {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Crimson Pro', 'Crimson Text', Georgia, serif;
+  font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-color);
+  opacity: 0.45;
+  letter-spacing: 0.02em;
+}
+
+.book-reader__page-number--clickable {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  user-select: none;
+}
+
+.book-reader__page-number--clickable:hover {
+  opacity: 0.7;
+}
+
+.book-reader__page-number--editing {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  opacity: 0.7;
+}
+
+.book-reader__page-input {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  outline: none;
+  width: 3ch;
+  text-align: center;
+  padding: 0 2px;
+  margin: 0;
+  -moz-appearance: textfield;
+}
+
+.book-reader__page-input::-webkit-outer-spin-button,
+.book-reader__page-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.book-reader__page-total {
+  font-style: inherit;
+}
+
+/* Cover page styling */
+.book-reader__cover {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.book-reader__cover-title {
+  font-family: 'Crimson Pro', 'Crimson Text', Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.book-reader__cover-author {
+  font-family: 'Crimson Pro', 'Crimson Text', Georgia, serif;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(45, 41, 38, 0.65);
+  margin: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .book-reader {
+    --page-bg: #1a1816;
+    --page-texture: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.01) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    --text-color: #d4cfc8;
+    --page-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.4);
+    --footer-bg: rgba(255, 255, 255, 0.03);
+    --footer-text: #8a847d;
+    --nav-hint-color: rgba(212, 207, 200, 0.2);
+    background: linear-gradient(180deg, #0d0c0b 0%, #1a1816 100%);
+  }
+
+}
+
+/* Tablet and larger */
+@media (min-width: 768px) {
+  .book-reader {
+    padding: 20px;
+    background: linear-gradient(180deg, #c4beb7 0%, #a9a39b 100%);
+  }
+
+  .book-reader__page,
+  .book-reader__page-follower {
+    margin: 0 auto;
+    /* NO padding here - padding is set via inline style (regionStyle) */
+    border-radius: 8px;
+    font-size: 20px;
+    max-width: 680px;
+  }
+
+  .book-reader__header {
+    top: 16px;
+    font-size: 12px;
+  }
+
+  .book-reader__page-number {
+    bottom: 24px;
+    font-size: 14px;
+  }
+
+  .book-reader__tap-zone {
+    top: 20px;
+    bottom: 20px;
+    width: 20%;
+  }
+
+  .book-reader__tap-zone--left {
+    left: 0;
+  }
+
+  .book-reader__tap-zone--right {
+    right: 0;
+  }
+
+  .book-reader__nav-hints {
+    max-width: 720px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 24px;
+  }
+
+  /* Show navigation buttons on desktop */
+  .book-reader__nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-reader__nav-btn--left {
+    left: 40px;
+  }
+
+  .book-reader__nav-btn--right {
+    right: 40px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .book-reader {
+      background: linear-gradient(180deg, #0a0908 0%, #141210 100%);
+    }
+
+    .book-reader__nav-btn {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .book-reader__nav-btn:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.book-reader__loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Ensure smooth scrolling behavior outside component */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Lock to portrait orientation on mobile - content designed for portrait */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .book-reader::before {
+    content: 'Please rotate your device to portrait mode for the best reading experience';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: var(--page-bg);
+  }
+  
+  .book-reader > * {
+    display: none !important;
+  }
+}

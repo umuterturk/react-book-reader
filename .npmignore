@@ -1,0 +1,19 @@
+# Source files (lib is compiled to dist)
+src/
+lib/
+
+# Demo app files
+book.tsx
+index.html
+public/
+
+# Config files
+.cursorignore
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+
+# Dev files
+node_modules/
+*.log
+.DS_Store
