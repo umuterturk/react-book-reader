@@ -16,34 +16,45 @@ export default defineConfig(({ mode }) => {
     };
   }
 
-  // Production mode - build the library
-  return {
-    plugins: [
-      react(),
-      dts({
-        include: ['lib'],
-        outDir: 'dist',
-        rollupTypes: true,
-      }),
-    ],
-    build: {
-      lib: {
-        entry: resolve(__dirname, 'lib/index.ts'),
-        name: 'ReactBookReader',
-        formats: ['es', 'cjs'],
-        fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
-      },
-      rollupOptions: {
-        external: ['react', 'react-dom', 'react/jsx-runtime'],
-        output: {
-          globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM',
+  // Library build mode
+  if (mode === 'lib') {
+    return {
+      plugins: [
+        react(),
+        dts({
+          include: ['lib'],
+          outDir: 'dist',
+          rollupTypes: true,
+        }),
+      ],
+      build: {
+        lib: {
+          entry: resolve(__dirname, 'lib/index.ts'),
+          name: 'ReactBookReader',
+          formats: ['es', 'cjs'],
+          fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+        },
+        rollupOptions: {
+          external: ['react', 'react-dom', 'react/jsx-runtime'],
+          output: {
+            globals: {
+              react: 'React',
+              'react-dom': 'ReactDOM',
+            },
           },
         },
+        cssCodeSplit: false,
+        sourcemap: true,
       },
-      cssCodeSplit: false,
-      sourcemap: true,
+    };
+  }
+
+  // Production mode (default) - build the demo app for GitHub Pages
+  return {
+    plugins: [react()],
+    base: process.env.BASE_URL || '/',
+    build: {
+      outDir: 'dist',
     },
   };
 });
