@@ -91,6 +91,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
   const pageStackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const pageInputRef = useRef<HTMLInputElement>(null);
+  const pagesRef = useRef<PageBounds[]>([]);
 
   const hasCover = Boolean(title || author);
   const fullStorageKey = `${STORAGE_KEY_PREFIX}${id}`;
@@ -480,6 +481,11 @@ export const BookReader: React.FC<BookReaderProps> = ({
     };
   }, [isResourcesReady, words.length, fullStorageKey, computeAllPages, hasCover]);
 
+  // Keep pages ref in sync for use in resize handler
+  useEffect(() => {
+    pagesRef.current = pages;
+  }, [pages]);
+
   // Handle resize - recompute all pages
   const lastDimensionsRef = useRef<{ width: number; height: number } | null>(null);
 
@@ -508,6 +514,15 @@ export const BookReader: React.FC<BookReaderProps> = ({
         setIsPaginating(true);
         requestAnimationFrame(() => {
           const allPages = computeAllPages();
+          
+          // If computeAllPages returns empty but we had valid pages,
+          // skip this resize - viewport is likely in a transient state
+          // (common on mobile when browser reopens with address bar animating)
+          if (allPages.length === 0 && pagesRef.current.length > 0) {
+            setIsPaginating(false);
+            return;
+          }
+          
           setPages(allPages);
 
           // Find new page for word index
