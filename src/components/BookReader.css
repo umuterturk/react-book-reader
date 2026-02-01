@@ -2,12 +2,10 @@
 
 .book-reader {
   --page-bg: #fdf8f0;
-  --page-texture: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.01) 0%,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0.02) 100%
-  );
+  --page-texture: linear-gradient(135deg,
+      rgba(0, 0, 0, 0.01) 0%,
+      rgba(0, 0, 0, 0) 50%,
+      rgba(0, 0, 0, 0.02) 100%);
   --text-color: #2d2926;
   --page-shadow: 0 2px 20px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1);
   --footer-bg: rgba(45, 41, 38, 0.04);
@@ -20,11 +18,12 @@
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #e8e4df 0%, #d4cfc8 100%);
+  background: var(--bg-primary);
   overflow: hidden;
   touch-action: pan-y pinch-zoom;
   user-select: none;
   -webkit-user-select: none;
+  transition: background 0.3s ease;
 }
 
 /* Main page container */
@@ -45,11 +44,11 @@
   overflow: hidden;
   position: absolute;
   inset: 0;
-  
+
   /* Use flexbox so content area can fill available space */
   display: flex;
   flex-direction: column;
- 
+
   /* Typography - Elegant serif for reading */
   font-family: 'Crimson Pro', 'Crimson Text', 'Georgia', 'Times New Roman', serif;
   font-size: 18px;
@@ -106,7 +105,6 @@
   position: absolute;
   top: 12px;
   bottom: 12px;
-  width: 25%;
   z-index: 10;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -114,10 +112,18 @@
 
 .book-reader__tap-zone--left {
   left: 12px;
+  width: 25%;
+}
+
+.book-reader__tap-zone--center {
+  left: 25%;
+  right: 25%;
+  width: 50%;
 }
 
 .book-reader__tap-zone--right {
   right: 12px;
+  width: 25%;
 }
 
 .book-reader__tap-zone--disabled {
@@ -126,11 +132,9 @@
 }
 
 .book-reader__tap-zone:active:not(.book-reader__tap-zone--disabled) {
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.02) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle at center,
+      rgba(0, 0, 0, 0.02) 0%,
+      transparent 70%);
 }
 
 /* Desktop navigation buttons - hidden on mobile */
@@ -250,6 +254,7 @@
   padding: 0 2px;
   margin: 0;
   -moz-appearance: textfield;
+  appearance: none;
 }
 
 .book-reader__page-input::-webkit-outer-spin-button,
@@ -293,23 +298,30 @@
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .book-reader {
-    --page-bg: #1a1816;
-    --page-texture: linear-gradient(
-      135deg,
+[data-theme='dark'] .book-reader {
+  --page-bg: #1a1816;
+  --page-texture: linear-gradient(135deg,
       rgba(255, 255, 255, 0.01) 0%,
       rgba(255, 255, 255, 0) 50%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-    --text-color: #d4cfc8;
-    --page-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.4);
-    --footer-bg: rgba(255, 255, 255, 0.03);
-    --footer-text: #8a847d;
-    --nav-hint-color: rgba(212, 207, 200, 0.2);
-    background: linear-gradient(180deg, #0d0c0b 0%, #1a1816 100%);
-  }
+      rgba(255, 255, 255, 0.02) 100%);
+  --text-color: #d4cfc8;
+  --page-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.4);
+  --footer-bg: rgba(255, 255, 255, 0.03);
+  --footer-text: #8a847d;
+  --nav-hint-color: rgba(212, 207, 200, 0.2);
+}
 
+/* Fix Bookmark Item contrast in Dark Mode */
+[data-theme='dark'] .book-reader__bookmark-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .book-reader__bookmark-label {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .book-reader__bookmarks-header h2 {
+  color: #f8fafc;
 }
 
 /* Tablet and larger */
@@ -338,18 +350,26 @@
     font-size: 14px;
   }
 
-  .book-reader__tap-zone {
+  .book-reader__tap-zone--left {
     top: 20px;
     bottom: 20px;
+    left: 0;
     width: 20%;
   }
 
-  .book-reader__tap-zone--left {
-    left: 0;
+  .book-reader__tap-zone--center {
+    top: 20px;
+    bottom: 20px;
+    left: 20%;
+    right: 20%;
+    width: 60%;
   }
 
   .book-reader__tap-zone--right {
+    top: 20px;
+    bottom: 20px;
     right: 0;
+    width: 20%;
   }
 
   .book-reader__nav-hints {
@@ -360,19 +380,35 @@
     padding: 0 24px;
   }
 
-  /* Show navigation buttons on desktop */
+  /* Show navigation buttons on desktop when controls are toggled */
   .book-reader__nav-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .book-reader__nav-btn--left {
     left: 40px;
+    transform: translateY(-50%) translateX(-15px);
   }
 
   .book-reader__nav-btn--right {
     right: 40px;
+    transform: translateY(-50%) translateX(15px);
+  }
+
+  .book-reader__nav-btn.is-visible {
+    opacity: 0.8;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .book-reader__nav-btn.is-visible:hover:not(:disabled) {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -392,8 +428,15 @@
 
 /* Loading animation */
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .book-reader__loading {
@@ -427,8 +470,340 @@ body {
     color: var(--text-color);
     background: var(--page-bg);
   }
-  
-  .book-reader > * {
+
+  .book-reader>* {
     display: none !important;
+  }
+}
+
+.book-reader__bookmark-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--page-bg);
+  color: var(--text-color);
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 100;
+  padding: 0;
+  opacity: 0.9;
+  animation: fadeInControl 0.2s ease-out;
+}
+
+@keyframes fadeInControl {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+}
+
+.book-reader__bookmark-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.book-reader__bookmark-toggle.is-active {
+  opacity: 1;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.book-reader__bookmark-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Dark mode styles for bookmark toggle */
+[data-theme='dark'] .book-reader__bookmark-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .book-reader__bookmark-toggle:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .book-reader__bookmark-toggle.is-active {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Floating Navigation (Bookmarks button) */
+.book-reader__floating-nav {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.book-reader__control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--page-bg);
+  color: var(--text-color);
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+/* Remove hover behavior on desktop - use is-visible class instead */
+.book-reader__floating-nav.is-visible .book-reader__control-btn {
+  opacity: 0.9;
+  transform: translateX(0);
+}
+
+.book-reader__control-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Show controls when floating-nav has is-visible class (single tap toggle) */
+.book-reader__floating-nav.is-visible .book-reader__control-btn {
+  opacity: 0.9;
+  transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+  .book-reader__control-btn {
+    /* Hidden by default on mobile too - shown via is-visible */
+    opacity: 0;
+    transform: translateX(-10px);
+    background: var(--page-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .book-reader__floating-nav.is-visible .book-reader__control-btn {
+    opacity: 0.9;
+    transform: translateX(0);
+  }
+}
+
+.book-reader__control-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Dark mode styles for control button */
+[data-theme='dark'] .book-reader__control-btn {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .book-reader__control-btn:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Bookmarks Panel Backdrop */
+.book-reader__bookmarks-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.book-reader__bookmarks-backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Bookmarks Panel */
+.book-reader__bookmarks-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 65%;
+  height: 100%;
+  background: var(--page-bg);
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.book-reader__bookmarks-panel.is-visible {
+  transform: translateX(0);
+}
+
+.book-reader__bookmarks-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.book-reader__bookmarks-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  margin: 0;
+}
+
+.book-reader__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.book-reader__theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.book-reader__theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+[data-theme='dark'] .book-reader__theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .book-reader__theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.book-reader__bookmarks-close {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.book-reader__bookmarks-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.book-reader__bookmark-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 12px;
+}
+
+.book-reader__bookmark-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.book-reader__bookmark-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book-reader__bookmark-label {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-color);
+}
+
+.book-reader__bookmark-date {
+  font-size: 12px;
+  color: var(--footer-text);
+}
+
+.book-reader__bookmark-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.book-reader__bookmark-edit,
+.book-reader__bookmark-delete {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.25;
+  transition: opacity 0.2s, color 0.2s;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-reader__bookmark-item:hover .book-reader__bookmark-edit,
+.book-reader__bookmark-item:hover .book-reader__bookmark-delete {
+  opacity: 0.5;
+}
+
+.book-reader__bookmark-edit:hover {
+  opacity: 1 !important;
+  color: var(--text-color);
+}
+
+.book-reader__bookmark-delete:hover {
+  opacity: 1 !important;
+  color: #ef4444;
+}
+
+.book-reader__bookmark-input {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-color);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--text-color);
+  outline: none;
+  padding: 2px 0;
+  width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .book-reader__bookmarks-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .book-reader__bookmark-item:hover {
+    background: rgba(255, 255, 255, 0.04);
   }
 }
